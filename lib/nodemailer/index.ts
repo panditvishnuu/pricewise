@@ -1,21 +1,18 @@
-"use server"
-
-import { EmailContent, EmailProductInfo, NotificationType } from '@/types';
-import nodemailer from 'nodemailer';
+import { EmailContent, EmailProductInfo, NotificationType } from "@/types";
+import nodemailer from "nodemailer";
 
 const Notification = {
-  WELCOME: 'WELCOME',
-  CHANGE_OF_STOCK: 'CHANGE_OF_STOCK',
-  LOWEST_PRICE: 'LOWEST_PRICE',
-  THRESHOLD_MET: 'THRESHOLD_MET',
-}
+  WELCOME: "WELCOME",
+  CHANGE_OF_STOCK: "CHANGE_OF_STOCK",
+  LOWEST_PRICE: "LOWEST_PRICE",
+  THRESHOLD_MET: "THRESHOLD_MET",
+};
 
 export async function generateEmailBody(
   product: EmailProductInfo,
   type: NotificationType
-  ) {
+) {
   const THRESHOLD_PERCENTAGE = 40;
-  // Shorten the product title
   const shortenedTitle =
     product.title.length > 20
       ? `${product.title.substring(0, 20)}...`
@@ -82,26 +79,35 @@ export async function generateEmailBody(
 
 const transporter = nodemailer.createTransport({
   pool: true,
-  service: 'gmail',
-  port: 2525,
+  service: "gmail",
+  port: 465,
   auth: {
-    user: 'vishnusharma76434@gmail.com',
-    pass: process.env.EMAIL_PASSWORD,
+    user: "vishnusharma76434@gmail.com",
+    pass: 'ivwcjlcaiqfxtzda',
   },
-  maxConnections: 1
-})
+  maxConnections: 1,
+});
 
-export const sendEmail = async (emailContent: EmailContent, sendTo: string[]) => {
+export const sendEmail = async (
+  emailContent: EmailContent,
+  sendTo: string[]
+) => {
+  if (!sendTo || sendTo.length === 0) {
+    console.error("No recipient email provided.");
+    return;
+  }
+
   const mailOptions = {
-    from: 'vishnusharma76434@gmail.com',
+    from: "vishnusharma76434@gmail.com",
     to: sendTo,
     html: emailContent.body,
     subject: emailContent.subject,
-  }
+  };
 
-  transporter.sendMail(mailOptions, (error: any, info: any) => {
-    if(error) return console.log(error);
-    
-    console.log('Email sent: ', info);
-  })
-}
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Email sent: ", info);
+  } catch (error) {
+    console.error("Failed to send email:", error);
+  }
+};
