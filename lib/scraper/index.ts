@@ -32,7 +32,7 @@ export async function scrapedAmazonProduct(url: string) {
   const username = String(process.env.BRIGHT_DATA_USERNAME);
   const password = String(process.env.BRIGHT_DATA_PASSWORD);
   const session_id = (1000000 * Math.random()) | 0;
-  const port = 22225;
+  const port = 33335;
   const options = {
     auth: {
       username: `${username}-session-${session_id}`,
